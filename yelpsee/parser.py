@@ -1,9 +1,9 @@
 def usage():
 
     print("{$APPDIR}/parser.py inputpath outpath"
-          "\nWhere:"
-          "\tinputpath: dir with Yelp! data files"
-          "\toutputpath: dir for output")
+          "\n\nWhere:"
+          "\n\tinputpath: dir with Yelp! data files"
+          "\n\toutputpath: dir for output")
 
 
 def parse_review_aggregation_by_city_by_category(datadir, outputpath):
@@ -100,9 +100,8 @@ def parse_review_aggregation_by_city_by_category(datadir, outputpath):
 
                 data[city][category]['checkin']['summary'] = sum([c['summary'] for _, c in data[city][category]['checkin'].items()])
 
-
-    with open(os.path.join(outputpath, 'reviews_summary.json'), 'w') as fp:
-        json.dump(data, fp, indent=4)
+    with open(os.path.join(outputpath, 'data_summary.json'), 'w') as fp:
+        json.dump(data, fp)
 
     print(
             "Read {0} cities".format(len(data))
