@@ -2,7 +2,7 @@ def usage():
 
     print("{$APPDIR}/filter.py inputFile outputDir cities"
           "\nWhere:"
-          "\n\tdataDir: JSON file data for cities, with cities as keys"
+          "\n\tinputFile: JSON file data for cities, with cities as keys"
           "\n\toutputDir: directory to store output file"
           "\n\tcities: comma separateed list of cities to extract from file")
 
@@ -33,6 +33,7 @@ def extract_cities(inp, out, cities):
     if any([not found for _, found in mark.items()]):
         print("Din't find: {0}".format([city for city, found in mark.items() if found is False]))
 
+
 if __name__ == "__main__":
 
     import sys
@@ -49,7 +50,3 @@ if __name__ == "__main__":
     print("Cities", cities)
 
     extract_cities(inp, out, cities)
-
-
-
-
