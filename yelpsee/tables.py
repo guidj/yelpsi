@@ -28,7 +28,7 @@ def writetables(inp, datadir):
     with open(inp, 'r') as fp:
         data = json.load(fp)
 
-    file = os.path.join(datadir, "review.db")
+    file = os.path.join(datadir, "reviews.csv")
 
     # city, category, review data (avg stars, #reviews)
     with open(file, 'w') as fp:
@@ -43,6 +43,29 @@ def writetables(inp, datadir):
                                  category,
                                  data[city][category]['average_stars'],
                                  data[city][category]['reviews_count']])
+
+    file = os.path.join(datadir, "checkin.csv")
+
+    with open(file, 'w') as fp:
+        writer = csv.writer(fp)
+        writer.writerow(["city", "category", "day", "hour", "checkin_count"])
+
+        for city in data:
+
+            for category in data[city]:
+
+                if 'checkin' in data[city][category]:
+                    for day in data[city][category]['checkin']:
+                        if day != "summary":
+                            for hour in data[city][category]['checkin'][day]:
+                                if hour != "summary":
+                                    writer.writerow([
+                                        city,
+                                        category,
+                                        day,
+                                        hour,
+                                        data[city][category]['checkin'][day][hour]
+                                    ])
 
     #TODO: checkin table, 1 file per city?
 
