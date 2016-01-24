@@ -18,6 +18,10 @@ bag$checkin <- mutate(bag$checkin, period=sapply(hour, dayTime))
 
 shinyServer(
     function(input, output) {
+        
+        output$city <- renderText({
+            as.character(input$city)
+        })
                 
         output$checkinPlot <- rCharts::renderChart2({
             CITY <- input$city
@@ -39,11 +43,12 @@ shinyServer(
             
             d1 = dPlot(y="category", x="Day Time Total", data=filter(dayTimeSummary, category %in% top10), groups="period", 
                        type="bar",
-                       bounds = list(x=150,y=10,height=340,width=600))
+                       bounds = list(x=150,y=30,width=600,height=320)
+                    )
             d1$yAxis(type="addCategoryAxis", orderRule="sum")
             d1$xAxis(type="addMeasureAxis")
-            d1$legend(x=0, y=0, width=500, height=75, horizontalAlign="right")
-            
+            d1$legend(x=0, y=0, width=600, height=75, horizontalAlign="right")
+  
             d1
         })        
     }

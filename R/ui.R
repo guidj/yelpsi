@@ -25,6 +25,9 @@ shinyUI(fluidPage(
                              div(class="col-md-1"),
                              div(
                                  class="col-md-8",
+                                 h3(
+                                     "Check-In Day Period Distribution,",textOutput("city", inline = TRUE),
+                                     align="center"),
                                  rCharts::showOutput("checkinPlot", "dimple")
                              )
                          ),
