@@ -77,7 +77,8 @@ shinyServer(
 
             leafletProxy("map", data = head(bag$geo, 1000)) %>%
                 clearShapes() %>%
-                addCircles(~longitude, ~latitude, layerId = ~id, popup = ~htmlEscape(name))
+                addCircleMarkers(~longitude, ~latitude, layerId = ~id, popup = ~htmlEscape(name), 
+                           clusterOptions = markerClusterOptions())
 #                 addCircles(~longitude, , radius=radius, layerId=~zipcode,
 #                            stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
 #                 addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
