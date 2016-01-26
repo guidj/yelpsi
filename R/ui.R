@@ -22,7 +22,7 @@ shinyUI(
                              column(1)
                          ),
                          fluidRow(
-                             p(textOutput("ticked"))
+                             p(textOutput("tickedCity"))
                              )
                 ),
                 tabPanel("Daily Activity Panel",

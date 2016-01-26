@@ -56,16 +56,19 @@ shinyServer(
                     urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
                     attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
                 ) %>%
-                setView(lat = head(bag$geo$latitude,1), lng = head(bag$geo$longitude, 1), zoom = 4)
+                setView(lat = head(bag$cities$latitude,1), lng = head(bag$cities$longitude, 1), zoom = 4)
+                
+                
+            
         })
         
         observe({
             
             # pick 100 places for each city
             
-            leafletProxy("dotMap", data = head(bag$geo,100)) %>%
+            leafletProxy("dotMap", data = bag$cities) %>%
                 clearShapes() %>%
-                addMarkers(~longitude, ~latitude, layerId = ~id, popup = ~htmlEscape(name), 
+                addMarkers(~longitude, ~latitude, layerId = ~city, popup = ~htmlEscape(city), 
                            clusterOptions = markerClusterOptions())
             #                 addCircles(~longitude, , radius=radius, layerId=~zipcode,
             #                            stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
@@ -78,11 +81,9 @@ shinyServer(
             #%>% clearPopups()
             event <- input$dotMap_marker_click
             if (is.null(event)){
-                print("Null")
                 return()
             }
-            print(event$id)
-            output$ticked <- renderText({event$id})
+            output$tickedCity <- renderText({event$id})
         })
     }
 )

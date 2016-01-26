@@ -24,7 +24,7 @@ centralGeoCoordinates <- function(latitude, longitude){
     coordinate <- list()
     
     if (length(latitude) != length(longitude)){
-        stop("Latitude and Lontitude vectors must be of same length")
+        stop("Latitude and Longitude vectors must be of same length ", latitude, " ", longitude)
     }
     
     if (length(latitude) == 1){
@@ -91,15 +91,21 @@ fetchDayPeriodData <- function(CITY, N=10){
     filter(dayTimeSummary, category %in% topN)
 }
 
+estimateCities <- function(geo){
+    
+    # make this more efficient (double computation)
+    unique(mutate(select(group_by(geo, city), city, latitude, longitude), latitude=centralGeoCoordinates(latitude, longitude)$lat,
+              longitude=centralGeoCoordinates(latitude, longitude)$lon))
+}
+
 bag <- list()
 bag$review <- dplyr::tbl_df(data.table(read.csv("../data/reviews.csv")))
 bag$checkin <- dplyr::tbl_df(data.table(read.csv("../data/checkin.csv")))
-bag$business <- dplyr::tbl_df(data.table(read.csv("../data/business_geo.csv")))
-bag$geo <- unique(select(bag$business, id, name, latitude, longitude))
-
-
-
+bag$geo <- dplyr::tbl_df(data.table(read.csv("../data/business_geo.csv")))
+# FIXING TOWN NAME
+bag$geo <- mutate(bag$geo, city=as.factor(replace(as.character(city), city=="London", "Edinburgh")))
 bag$checkin <- mutate(bag$checkin, period=sapply(hour, dayTime))
+bag$cities <- estimateCities(bag$geo)
 
 
 
