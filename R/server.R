@@ -1,7 +1,9 @@
-library(rCharts)
+# library(rCharts)
 library(htmltools)
 library(leaflet)
 library(shinyjs)
+library(plotly)
+library(dplyr)
 
 source("utils.R")
 
@@ -21,30 +23,59 @@ shinyServer(
             paste("Daily Local Activity:", as.character(input$citySelect))
         })
         
-        output$checkinStreamPlot <- rCharts::renderChart2({
+        output$checkinActivityPlot <- renderPlotly({
             
-            city <- input$citySelect 
-            categories = unique(as.character(dayPeriodData()$category))
-            fdata <- summarise(group_by(filter(bag$checkin, category %in% categories), category, hour), tt=sum(checkin_count))
-            
-            dat <- data.frame(
-                t = fdata$hour, 
-                var = fdata$category, 
-                val = fdata$tt
+            CITY <- input$citySelect
+            N <- 10
+            tmpdf = summarise(
+                group_by(filter(bag$checkin, as.character(city)==CITY), category), 
+                totalCheckin=sum(checkin_count)
             )
             
-            streamP <- nPlot(val ~ t, group =  'var', data = dat, 
-                             type = 'stackedAreaChart', id = 'streamChartB',
-                             legend
-                            
-            )
+            tmpdf <- arrange(tmpdf, desc(totalCheckin))
+            categories <- head(as.character(tmpdf$category), N)
+
+            fdata <- summarise(group_by(filter(bag$checkin, as.character(city)==CITY, category %in% categories), category, hour), tt=sum(checkin_count))
+            fdata <- mutate(fdata, period=sapply(hour, dayTime))
             
-            streamP$xAxis(axisLabel="Hour")
-            streamP$yAxis(axisLabel="Number of Checkins")
-            streamP$chart(margin=list(left=80, right=70, bottom=110))
-            
-            streamP
+#             fdata$hour <- as.factor(fdata$period)
+            fdata %>% count(tt, period) %>%
+                plot_ly(x = categories, y = tt, type = "bar", color = period) %>% layout(barmode='stack')            
+
         })
+        
+#         output$checkinStreamPlot <- rCharts::renderChart2({
+#             
+#             CITY <- input$citySelect
+#             N <- 10
+#             tmpdf = summarise(
+#                 group_by(filter(bag$checkin, as.character(city)==CITY), category), 
+#                 totalCheckin=sum(checkin_count)
+#             )
+#             
+#             tmpdf <- arrange(tmpdf, desc(totalCheckin))
+#             categories <- head(as.character(tmpdf$category), N)
+# 
+#             fdata <- summarise(group_by(filter(bag$checkin, as.character(city)==CITY, category %in% categories), category, hour), tt=sum(checkin_count))
+#             
+#             dat <- data.frame(
+#                 t = fdata$hour, 
+#                 var = fdata$category, 
+#                 val = fdata$tt
+#             )
+#             
+#             streamP <- nPlot(val ~ t, group =  'var', data = dat, 
+#                              type = 'stackedAreaChart', id = 'streamChartB',
+#                              legend
+#                             
+#             )
+#             
+#             streamP$xAxis(axisLabel="Hour")
+#             streamP$yAxis(axisLabel="Number of Checkins")
+#             streamP$chart(margin=list(left=80, right=70, bottom=110))
+#             
+#             streamP
+#         })
         
         #         output$checkinPlot <- rCharts::renderChart2({
         # 
@@ -80,8 +111,6 @@ shinyServer(
                 clearShapes() %>%
                 addMarkers(~longitude, ~latitude, layerId = ~city, popup = ~htmlEscape(city), 
                            clusterOptions = markerClusterOptions())
-            
-            
 
             #                 addCircles(~longitude, , radius=radius, layerId=~zipcode,
             #                            stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
@@ -97,7 +126,7 @@ shinyServer(
             }
             
             output$tickedCity <- renderText({event$id})
-            updateSelectInput(session, "citySelect", selected = event$id, choices = c(event$id))
+                updateSelectInput(session, "citySelect", selected = event$id, choices = c(event$id))
         })
         
         observeEvent(input$citySelect, {

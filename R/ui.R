@@ -1,7 +1,7 @@
-require(rCharts)
+# require(rCharts)
 require(leaflet)
 require(shinyjs)
-options(RCHART_LIB = 'nvd3')
+# options(RCHART_LIB = 'nvd3')
 
 shinyUI(
     fluidPage(
@@ -20,10 +20,9 @@ shinyUI(
                          ),
                          fluidRow(                             
                              column(2),
-                             column(5, 
-                                    rCharts::showOutput("checkinStreamPlot", "nvd3")
-                             ),
-                             column(2)                                                 
+                             column(10, 
+                                    plotlyOutput("checkinActivityPlot")
+                             )                                                
                          ),
                          fluidRow(
                             column(2),
@@ -34,7 +33,11 @@ shinyUI(
                          fluidRow(
                              column(2),
                              column(10,leafletOutput("dotMap"))
+                             
                          ),
+                         fluidRow(
+                             br(),br()
+                             ),
                          fluidRow(
                              column(2),
                              column(5,
