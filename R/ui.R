@@ -14,7 +14,7 @@ shinyUI(
                          fluidRow(
                              column(2),
                              column(10,
-                                    h2(paste(sep=" ", "Yelp activity @"), textOutput("tickedCity", inline = TRUE)),
+                                    h2(paste(sep=" ", "Yelp activity @"), textOutput("tickedCity", inline = TRUE), align="center"),
                                     br()
                              )
                          ),
@@ -26,11 +26,14 @@ shinyUI(
                              column(2)                                                 
                          ),
                          fluidRow(
-                            br(),br()
+                            column(2),
+                            column(10, 
+                                   h4("Pick a City", align="center")
+                                   )
                          ),
                          fluidRow(
                              column(2),
-                             column(10, leafletOutput("dotMap"))
+                             column(10,leafletOutput("dotMap"))
                          ),
                          fluidRow(
                              column(2),

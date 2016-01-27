@@ -103,8 +103,12 @@ bag$review <- dplyr::tbl_df(data.table(read.csv("../data/reviews.csv")))
 bag$checkin <- dplyr::tbl_df(data.table(read.csv("../data/checkin.csv")))
 bag$geo <- dplyr::tbl_df(data.table(read.csv("../data/business_geo.csv")))
 
-# FIXING TOWN NAME
+# FIXING TOWN NAMES
 bag$geo <- mutate(bag$geo, city=as.factor(replace(as.character(city), city=="London", "Edinburgh")))
+bag$geo <- mutate(bag$geo, 
+                  city=as.factor(replace(as.character(city), 
+                                         city %in% c("De Forest", "Deforest", "De Forest"), 
+                                         "DeForest")))
 
 # FILTER CITIES WITHOUT ACTIVITY
 
