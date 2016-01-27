@@ -49,11 +49,16 @@ shinyUI(
                 tabPanel("Observe",
                          br(),
                          fluidRow(
-                             column(4,
-                                    selectInput("categorySelect", label="", choices= c("..."),
-                                                selected = "...") 
-                             ),
-                             column(10)
+                             column(3,
+                                    checkboxGroupInput("weekdayCheckGroup", label = h3("Weekdays"), 
+                                                       choices = list("Sunday"=0, "Monday"=1, "Tuesday"=2,
+                                                                      "Wednesday"=3,"Thursday"=4, 
+                                                                      "Friday"=5, "Saturday"=6),
+                                                       selected = c(0:6))                                    
+                             )                             
+                         ), 
+                         fluidRow(
+
                          ),
                          fluidRow(
                              column(12,
@@ -68,13 +73,33 @@ shinyUI(
                                     plotlyOutput("weekdayActivityPlot")                                    
                              ),
                              column(3,
-                                    checkboxGroupInput("weekdayCheckGroup", label = h3("Weekdays"), 
-                                                       choices = list("Sunday"=0, "Monday"=1, "Tuesday"=2,
-                                                                      "Wednesday"=3,"Thursday"=4, 
-                                                                      "Friday"=5, "Saturday"=6),
-                                                       selected = c(0:6))                                    
-                                    )
-                         )                         
+                                    selectInput("categorySelect", label="", choices= c("..."),
+                                                selected = "...") 
+                             )                             
+                         ),
+                         fluidRow(
+
+                         ),
+                         fluidRow(
+                             column(12,
+                                    h4(textOutput("pickedCategoryB", inline=TRUE),
+                                       "activity @", 
+                                       textOutput("trendCityB", inline = TRUE),
+                                       align="center")
+                             )
+                         ),
+                         fluidRow(
+                             column(9, 
+                                    plotlyOutput("weekdayActivityPlotB")                                    
+                             ),
+                             column(3,
+                                    selectInput("categorySelectB", label="", choices= c("..."),
+                                                selected = "...") 
+                             )                             
+                         ),
+                         fluidRow(
+                             br()
+                             )
                 ),
                 tabPanel("About",
                          fluidRow(
@@ -84,9 +109,9 @@ shinyUI(
                                     p(tags$b("Xplore"), "the different cities where Yelpers are engaged in reviewing and checking into their favorite places on the map.
                                       Once you've found a place of interest, you can observe the particular trends of level of activity at the top 10 business categories
                                       on the", tags$b("Observe"), "tab.")
-                                    )
                              )
                          )
+                )
             )
         )
     ))

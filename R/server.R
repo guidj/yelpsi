@@ -24,7 +24,19 @@ updateCategorySelection <- function(session, pickedCity, n=10){
     updateSelectInput(session, "categorySelect", 
                       selected = categories[1], 
                       choices = categories,
-                      label=paste(sep="", "Top 10 Categories in ", pickedCity))    
+                      label="Pick a Category")
+    
+    if (length(categories) > 1){
+        updateSelectInput(session, "categorySelectB", 
+                          selected = categories[2], 
+                          choices = categories,
+                          label="Pick a Category")
+    }else{
+        updateSelectInput(session, "categorySelectB", 
+                          selected = "...", 
+                          choices = c("..."),
+                          label="No Other Categories Avaiable")
+    }
 }
 
 weekdayName <- function(intValue){
@@ -33,7 +45,7 @@ weekdayName <- function(intValue){
            "6"="Saturday")
 }
 
-periodCols <- RColorBrewer::brewer.pal(nlevels(as.factor(c("Morning", "Afternoon", "Night", "AfterHours"))), "Set1")
+periodCols <- RColorBrewer::brewer.pal(nlevels(as.factor(c("Morning", "Afternoon", "Night", "AfterHours"))), "Set2")
 
 shinyServer(
     function(input, output, session) {
@@ -84,16 +96,27 @@ shinyServer(
             df <- mutate(df, day=sapply(day, weekdayName)) %>%
                     mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
                      arrange(day, hour)
-            
-#             dens <- with(ggplot2::diamonds, tapply(price, INDEX = cut, density))
-#             df <- data.frame(
-#                 x = unlist(lapply(dens, "[[", "x")),
-#                 y = unlist(lapply(dens, "[[", "y")),
-#                 cut = rep(names(dens), each = length(dens[[1]]$x))
-#             )
-#             
+
             plot_ly(df, x = hour, y = `CheckIn Count`, color = day)
         })
+        
+        output$weekdayActivityPlotB <- renderPlotly({
+            
+            CITY <- input$citySelect
+            CATEGORY <- input$categorySelectB
+            WEEKDAYS <- input$weekdayCheckGroup
+            
+            df <- select(
+                filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY,
+                       day %in% WEEKDAYS), 
+                day, hour, checkin_count)
+            
+            df <- mutate(df, day=sapply(day, weekdayName)) %>%
+                mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
+                arrange(day, hour)
+            
+            plot_ly(df, x = hour, y = `CheckIn Count`, color = day)
+        })        
         
         output$dotMap <- leaflet::renderLeaflet({
             
@@ -101,6 +124,7 @@ shinyServer(
             content <- paste(sep="", "<b>", initialMark$city, "</b>")
             output$tickedCity <- renderText({as.character(initialMark$city)})
             output$trendCityA <- renderText({as.character(initialMark$city)})
+            output$trendCityB <- renderText({as.character(initialMark$city)})
             
             leaflet() %>%
                 addTiles(
@@ -135,6 +159,7 @@ shinyServer(
             
             output$tickedCity <- renderText({event$id})
             output$trendCityA <- renderText({event$id})
+            output$trendCityB <- renderText({event$id})
             updateSelectInput(session, "citySelect", selected = event$id, choices = c(event$id))
             
             # update category selection on Data Tab
@@ -144,6 +169,10 @@ shinyServer(
         output$pickedCategoryA <- renderText({
             input$categorySelect
         })
+        
+        output$pickedCategoryB <- renderText({
+            input$categorySelectB
+        })        
         
         observeEvent(input$citySelect, {
             hide("citySelect")
