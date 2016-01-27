@@ -23,6 +23,7 @@ shinyServer(
         
         output$checkinStreamPlot <- rCharts::renderChart2({
             
+            city <- input$citySelect 
             categories = unique(as.character(dayPeriodData()$category))
             fdata <- summarise(group_by(filter(bag$checkin, category %in% categories), category, hour), tt=sum(checkin_count))
             

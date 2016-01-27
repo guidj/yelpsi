@@ -109,6 +109,10 @@ bag$geo <- mutate(bag$geo,
                   city=as.factor(replace(as.character(city), 
                                          city %in% c("De Forest", "Deforest", "De Forest"), 
                                          "DeForest")))
+bag$geo <- mutate(bag$geo, 
+                  city=as.factor(replace(as.character(city), 
+                                         city %in% c("Mc Farland", "Mcfarland", "McFarland"), 
+                                         "McFarland")))
 
 # FILTER CITIES WITHOUT ACTIVITY
 
