@@ -31,8 +31,8 @@ shinyUI(
                              )
                          ),
                          fluidRow(
-                             column(2),
-                             column(10,leafletOutput("dotMap"))
+#                              column(2),
+                             column(12,leafletOutput("dotMap"))
                              
                          ),
                          fluidRow(

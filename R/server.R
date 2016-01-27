@@ -69,19 +69,20 @@ shinyServer(
             categories <- head(as.character(tmpdf$category), N)
             
             fdata <- summarise(group_by(filter(bag$checkin, as.character(city)==CITY, category %in% categories), category, hour), tt=sum(checkin_count))
-            fdata <- unique(
-                select(
-                    mutate(
-                        group_by(
-                            mutate(fdata, period=sapply(hour, dayTime)), category, period), checkins=sum(tt)
-                    ), category, period, checkins))
             
+            fdata <- fdata %>% mutate(period=sapply(hour, dayTime)) %>%
+                group_by(category, period) %>% 
+                mutate(checkins=sum(tt)) %>%
+                group_by(category) %>%
+                select(category, period, checkins)
+            
+            fdata <- unique(fdata)
+            fdata <- fdata %>% ungroup() %>% group_by(category) %>% mutate(total=sum(checkins))            
+            fdata <- fdata %>% ungroup() %>% arrange(desc(total)) 
+
             plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, 
                     colors = c("#00CC20", "#D40000", "#FFDB0D", "#0485FF"), xlab="Checkins", ylab="Hour")  %>% 
-                layout(barmode='stack', margin = list(b=100))    
-            
-            #A82600
-            
+                layout(barmode='stack', margin = list(b=100))                
         })
         
         output$weekdayActivityPlot <- renderPlotly({
@@ -134,7 +135,11 @@ shinyServer(
             output$trendCityA <- renderText({as.character(initialMark$city)})
             output$trendCityB <- renderText({as.character(initialMark$city)})
             
-            leaflet() %>%
+            # other providers
+            #                 addProviderTiles("OpenStreetMap.Mapnik",
+            #                                  options = providerTileOptions(noWrap = TRUE)
+            #                 ) %>%                
+            leaflet( width = "100%", height = "100%") %>%
                 addTiles(
                     urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
                     attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'

@@ -99,7 +99,7 @@ estimateCities <- function(geo){
 }
 
 bag <- list()
-bag$review <- dplyr::tbl_df(data.table(read.csv("../data/reviews.csv")))
+# bag$review <- dplyr::tbl_df(data.table(read.csv("../data/reviews.csv")))
 bag$checkin <- dplyr::tbl_df(data.table(read.csv("../data/checkin.csv")))
 bag$geo <- dplyr::tbl_df(data.table(read.csv("../data/business_geo.csv")))
 
