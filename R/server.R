@@ -9,15 +9,33 @@ source("utils.R")
 
 # globalVariable <- as.character(head(bag$cities, 1)$city)
 
+topBusinessCategories <- function(pCity, n=10){
+    tmpdf = summarise(
+        group_by(filter(bag$checkin, as.character(city)==pCity), category), 
+        totalCheckin=sum(checkin_count)
+    )
+    tmpdf <- arrange(tmpdf, desc(totalCheckin))
+    head(as.character(tmpdf$category), n)
+}
+
+updateCategorySelection <- function(session, pickedCity, n=10){
+    categories <- topBusinessCategories(pickedCity, n)
+    updateSelectInput(session, "categorySelect", 
+                      selected = categories[1], 
+                      choices = categories,
+                      label=paste(sep="", "Top 10 Categories in ", pickedCity))    
+}
+
+weekdayName <- function(intValue){
+    tmpValue <- as.character(intValue)
+    switch(tmpValue, "0"="Sunday", "1"="Monday", "2"="Tuesday", "3"="Wednesday", "4"="Thursday", "5"="Friday",
+           "6"="Saturday")
+}
+
 shinyServer(
     function(input, output, session) {
         
         output$tickedCity <- renderText({"..."})
-        
-        dayPeriodData <- reactive({
-            CITY <- input$citySelect
-            fetchDayPeriodData(CITY)
-        })
         
         output$streamChartHeader <- renderText({
             paste("Daily Local Activity:", as.character(input$citySelect))
@@ -48,12 +66,34 @@ shinyServer(
             
         })
         
+        output$weekdayActivityPlot <- renderPlotly({
+            
+            CITY <- input$citySelect
+            CATEGORY <- input$categorySelect
+            df <- select(
+                filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY), 
+                day, hour, checkin_count)
+            
+            df <- mutate(df, day=sapply(day, weekdayName)) %>%
+                    mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
+                     arrange(day, hour)
+            
+#             dens <- with(ggplot2::diamonds, tapply(price, INDEX = cut, density))
+#             df <- data.frame(
+#                 x = unlist(lapply(dens, "[[", "x")),
+#                 y = unlist(lapply(dens, "[[", "y")),
+#                 cut = rep(names(dens), each = length(dens[[1]]$x))
+#             )
+#             
+            plot_ly(df, x = hour, y = `CheckIn Count`, color = day)
+        })
+        
         output$dotMap <- leaflet::renderLeaflet({
             
-#             randomIndex <- as.integer(runif(1, 1, dim(bag$cities)[1]))
             initialMark <- filter(bag$cities, as.character(city)=="Madison")
             content <- paste(sep="", "<b>", initialMark$city, "</b>")
             output$tickedCity <- renderText({as.character(initialMark$city)})
+            output$trendCityA <- renderText({as.character(initialMark$city)})
             
             leaflet() %>%
                 addTiles(
@@ -69,11 +109,14 @@ shinyServer(
                 clearShapes() %>%
                 addMarkers(~longitude, ~latitude, layerId = ~city, popup = ~htmlEscape(city), 
                            clusterOptions = markerClusterOptions())
+            # first time only
             
             #                 addCircles(~longitude, , radius=radius, layerId=~zipcode,
             #                            stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
             #                 addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
             #                           layerId="colorLegend")
+            
+            updateCategorySelection(session, "Madison", 10)
         })
         
         observe({
@@ -84,12 +127,20 @@ shinyServer(
             }
             
             output$tickedCity <- renderText({event$id})
+            output$trendCityA <- renderText({event$id})
             updateSelectInput(session, "citySelect", selected = event$id, choices = c(event$id))
+            
+            # update category selection on Data Tab
+            updateCategorySelection(session, event$id, 10)
+        })
+
+        output$pickedCategoryA <- renderText({
+            input$categorySelect
         })
         
         observeEvent(input$citySelect, {
             hide("citySelect")
-        })        
+        })         
         
     }
 )
