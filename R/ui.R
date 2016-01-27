@@ -24,6 +24,7 @@ shinyUI(
                                     plotlyOutput("checkinActivityPlot")
                              )                                                
                          ),
+                         fluidRow(br()),
                          fluidRow(
                             column(2),
                             column(10, 

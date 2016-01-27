@@ -36,11 +36,16 @@ shinyServer(
             categories <- head(as.character(tmpdf$category), N)
 
             fdata <- summarise(group_by(filter(bag$checkin, as.character(city)==CITY, category %in% categories), category, hour), tt=sum(checkin_count))
-            fdata <- mutate(fdata, period=sapply(hour, dayTime))
+            fdata <- unique(
+                select(
+                    mutate(
+                        group_by(
+                            mutate(fdata, period=sapply(hour, dayTime)), category, period), checkins=sum(tt)
+                        ), category, period, checkins))
             
 #             fdata$hour <- as.factor(fdata$period)
-            fdata %>% count(tt, period) %>%
-                plot_ly(x = categories, y = tt, type = "bar", color = period) %>% layout(barmode='stack')            
+            plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, xlab="Checkins", ylab="Hour")  %>% 
+                    layout(barmode='stack', margin = list(b=100))            
 
         })
         
