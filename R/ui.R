@@ -1,7 +1,7 @@
-# require(rCharts)
 require(leaflet)
 require(shinyjs)
-# options(RCHART_LIB = 'nvd3')
+require(plotly)
+
 
 shinyUI(
     fluidPage(
@@ -46,7 +46,7 @@ shinyUI(
                              )
                          )
                 ),
-                tabPanel("Find",
+                tabPanel("Observe",
                          br(),
                          fluidRow(
                              column(4,
@@ -64,12 +64,29 @@ shinyUI(
                              )
                          ),
                          fluidRow(
-                             column(12, 
+                             column(9, 
                                     plotlyOutput("weekdayActivityPlot")                                    
-                             )
+                             ),
+                             column(3,
+                                    checkboxGroupInput("weekdayCheckGroup", label = h3("Weekdays"), 
+                                                       choices = list("Sunday"=0, "Monday"=1, "Tuesday"=2,
+                                                                      "Wednesday"=3,"Thursday"=4, 
+                                                                      "Friday"=5, "Saturday"=6),
+                                                       selected = c(0:6))                                    
+                                    )
                          )                         
                 ),
-                tabPanel("About")
+                tabPanel("About",
+                         fluidRow(
+                             column(8, offset = 1,
+                                    br(),
+                                    p("This visuzaliation tool let's you explore the daily activity trends of Yelpers around the world."),
+                                    p(tags$b("Xplore"), "the different cities where Yelpers are engaged in reviewing and checking into their favorite places on the map.
+                                      Once you've found a place of interest, you can observe the particular trends of level of activity at the top 10 business categories
+                                      on the", tags$b("Observe"), "tab.")
+                                    )
+                             )
+                         )
             )
         )
     ))

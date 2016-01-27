@@ -2,6 +2,7 @@
 library(htmltools)
 library(leaflet)
 library(shinyjs)
+library(RColorBrewer)
 library(plotly)
 library(dplyr)
 
@@ -32,6 +33,8 @@ weekdayName <- function(intValue){
            "6"="Saturday")
 }
 
+periodCols <- RColorBrewer::brewer.pal(nlevels(as.factor(c("Morning", "Afternoon", "Night", "AfterHours"))), "Set1")
+
 shinyServer(
     function(input, output, session) {
         
@@ -61,7 +64,8 @@ shinyServer(
                             mutate(fdata, period=sapply(hour, dayTime)), category, period), checkins=sum(tt)
                     ), category, period, checkins))
             
-            plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, xlab="Checkins", ylab="Hour")  %>% 
+            plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, 
+                    colors = periodCols, xlab="Checkins", ylab="Hour")  %>% 
                 layout(barmode='stack', margin = list(b=100))            
             
         })
@@ -70,8 +74,11 @@ shinyServer(
             
             CITY <- input$citySelect
             CATEGORY <- input$categorySelect
+            WEEKDAYS <- input$weekdayCheckGroup
+            
             df <- select(
-                filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY), 
+                filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY,
+                       day %in% WEEKDAYS), 
                 day, hour, checkin_count)
             
             df <- mutate(df, day=sapply(day, weekdayName)) %>%
