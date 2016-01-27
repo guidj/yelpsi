@@ -1,11 +1,16 @@
 library(rCharts)
 library(htmltools)
 library(leaflet)
+library(shinyjs)
 
 source("utils.R")
 
+# globalVariable <- as.character(head(bag$cities, 1)$city)
+
 shinyServer(
-    function(input, output) {
+    function(input, output, session) {
+        
+        output$tickedCity <- renderText({"..."})
         
         dayPeriodData <- reactive({
             CITY <- input$citySelect
@@ -28,10 +33,13 @@ shinyServer(
             )
             
             streamP <- nPlot(val ~ t, group =  'var', data = dat, 
-                             type = 'stackedAreaChart', id = 'streamChartB'
+                             type = 'stackedAreaChart', id = 'streamChartB',
+                             legend
+                            
             )
-            streamP$xAxis(axisLabel="AM-PM")
-            streamP$yAxis(axisLabel="Daily Checkins")
+            
+            streamP$xAxis(axisLabel="Hour")
+            streamP$yAxis(axisLabel="Number of Checkins")
             streamP$chart(margin=list(left=80, right=70, bottom=110))
             
             streamP
@@ -51,25 +59,29 @@ shinyServer(
         #         })
         
         output$dotMap <- leaflet::renderLeaflet({
+            
+            randomIndex <- as.integer(runif(1, 1, dim(bag$cities)[1]))
+            initialMark <- bag$cities[randomIndex,]
+            content <- paste(sep="", "<b>", initialMark$city, "</b>")
+            output$tickedCity <- renderText({as.character(initialMark$city)})
+            
             leaflet() %>%
                 addTiles(
                     urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
                     attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
                 ) %>%
-                setView(lat = head(bag$cities$latitude,1), lng = head(bag$cities$longitude, 1), zoom = 4)
-                
-                
-            
+                setView(lat = initialMark$latitude, lng = initialMark$longitude, zoom = 14)
         })
         
         observe({
-            
-            # pick 100 places for each city
             
             leafletProxy("dotMap", data = bag$cities) %>%
                 clearShapes() %>%
                 addMarkers(~longitude, ~latitude, layerId = ~city, popup = ~htmlEscape(city), 
                            clusterOptions = markerClusterOptions())
+            
+            
+
             #                 addCircles(~longitude, , radius=radius, layerId=~zipcode,
             #                            stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) %>%
             #                 addLegend("bottomleft", pal=pal, values=colorData, title=colorBy,
@@ -78,13 +90,19 @@ shinyServer(
         
         observe({
             leafletProxy("dotMap") 
-            #%>% clearPopups()
             event <- input$dotMap_marker_click
             if (is.null(event)){
                 return()
             }
+            
             output$tickedCity <- renderText({event$id})
+            updateSelectInput(session, "citySelect", selected = event$id, choices = c(event$id))
         })
+        
+        observeEvent(input$citySelect, {
+            hide("citySelect")
+        })        
+        
     }
 )
 

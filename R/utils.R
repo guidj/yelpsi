@@ -102,8 +102,15 @@ bag <- list()
 bag$review <- dplyr::tbl_df(data.table(read.csv("../data/reviews.csv")))
 bag$checkin <- dplyr::tbl_df(data.table(read.csv("../data/checkin.csv")))
 bag$geo <- dplyr::tbl_df(data.table(read.csv("../data/business_geo.csv")))
+
 # FIXING TOWN NAME
 bag$geo <- mutate(bag$geo, city=as.factor(replace(as.character(city), city=="London", "Edinburgh")))
+
+# FILTER CITIES WITHOUT ACTIVITY
+
+activeCities <- unique(as.character(bag$checkin$city))
+bag$geo <- filter(bag$geo, as.character(city) %in% activeCities)
+
 bag$checkin <- mutate(bag$checkin, period=sapply(hour, dayTime))
 bag$cities <- estimateCities(bag$geo)
 
