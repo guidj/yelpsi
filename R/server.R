@@ -77,8 +77,10 @@ shinyServer(
                     ), category, period, checkins))
             
             plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, 
-                    colors = periodCols, xlab="Checkins", ylab="Hour")  %>% 
-                layout(barmode='stack', margin = list(b=100))            
+                    colors = c("#00CC20", "#D40000", "#FFDB0D", "#0485FF"), xlab="Checkins", ylab="Hour")  %>% 
+                layout(barmode='stack', margin = list(b=100))    
+            
+            #A82600
             
         })
         
