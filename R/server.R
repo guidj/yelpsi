@@ -110,7 +110,6 @@ shinyServer(
             WEEKDAYS <- input$weekdayCheckGroup
             
             if (CATEGORY == "..."){
-                print("dead end")
                 df <- data.frame(hour=rep(0:23,7), `CheckIn Count`=rep(0, 168), day=rep(sapply(WEEKDAYS, weekdayName), 24))
                 return(plot_ly(df, x = hour, y = `CheckIn Count`, color = day))
             }
