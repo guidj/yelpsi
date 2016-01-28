@@ -4,3 +4,4 @@ data/
 
 *.RData
 *.Rhistory
+R/rsconnect/

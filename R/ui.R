@@ -49,12 +49,12 @@ shinyUI(
                 tabPanel("Observe",
                          br(),
                          fluidRow(
-                             column(3,
+                             column(12,
                                     checkboxGroupInput("weekdayCheckGroup", label = h3("Weekdays"), 
                                                        choices = list("Sunday"=0, "Monday"=1, "Tuesday"=2,
                                                                       "Wednesday"=3,"Thursday"=4, 
                                                                       "Friday"=5, "Saturday"=6),
-                                                       selected = c(0:6))                                    
+                                                       selected = c(0:6), inline=TRUE )                                    
                              )                             
                          ), 
                          fluidRow(
