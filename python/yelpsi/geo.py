@@ -7,7 +7,7 @@ def business_geo_data(inp, out):
 
         writer = csv.writer(ofp)
 
-        writer.writerow(['category', 'id', 'name', 'address', 'city', 'latitude', 'longitude', 'stars'])
+        writer.writerow(['category', 'id', 'name', 'address', 'city', 'latitude', 'longitude', 'stars', 'categories'])
 
         for line in ifp:
             payload = json.loads(line)
@@ -17,7 +17,8 @@ def business_geo_data(inp, out):
                 writer.writerow([category, payload['business_id'], payload['name'],
                                  payload['full_address'].replace('\n', ', '), payload['city'],
                                  payload['latitude'], payload['longitude'],
-                                 payload['stars']])
+                                 payload['stars'],
+                                 ', '.join(payload['categories'])])
 
 
 if __name__ == '__main__':

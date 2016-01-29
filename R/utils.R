@@ -93,15 +93,23 @@ fetchDayPeriodData <- function(CITY, N=10){
 
 estimateCities <- function(geo){
     
-    # make this more efficient (double computation)
-    unique(mutate(select(group_by(geo, city), city, latitude, longitude), latitude=centralGeoCoordinates(latitude, longitude)$lat,
-              longitude=centralGeoCoordinates(latitude, longitude)$lon))
+    #TODO:  make this more efficient (double computation)
+#     unique(mutate(select(group_by(geo, city), city, latitude, longitude), latitude=centralGeoCoordinates(latitude, longitude)$lat,
+#                   longitude=centralGeoCoordinates(latitude, longitude)$lon)) 
+    
+    fdata <- geo %>% group_by(city) %>% select(city, latitude, longitude)
+    fdata <- unique(fdata)
+    
+    fdata <- fdata %>% mutate(latitude=centralGeoCoordinates(latitude, longitude)$lat,
+                               longitude=centralGeoCoordinates(latitude, longitude)$lon)
+    
+    unique(fdata)
 }
 
 bag <- list()
 # bag$review <- dplyr::tbl_df(data.table(read.csv("data/reviews.csv")))
-bag$checkin <- dplyr::tbl_df(data.table(read.csv("data/checkin.csv")))
-bag$geo <- dplyr::tbl_df(data.table(read.csv("data/business_geo.csv")))
+bag$checkin <- dplyr::tbl_df(data.table::fread("data/checkin.csv"))
+bag$geo <- dplyr::tbl_df(data.table::fread("data/business_geo.csv"))
 
 # FIXING TOWN NAMES
 bag$geo <- mutate(bag$geo, city=as.factor(replace(as.character(city), city=="London", "Edinburgh")))
@@ -121,6 +129,3 @@ bag$geo <- filter(bag$geo, as.character(city) %in% activeCities)
 
 bag$checkin <- mutate(bag$checkin, period=sapply(hour, dayTime))
 bag$cities <- estimateCities(bag$geo)
-
-
-

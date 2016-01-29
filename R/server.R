@@ -78,11 +78,13 @@ shinyServer(
             
             fdata <- unique(fdata)
             fdata <- fdata %>% ungroup() %>% group_by(category) %>% mutate(total=sum(checkins))            
-            fdata <- fdata %>% ungroup() %>% arrange(desc(total)) 
+            fdata <- fdata %>% ungroup() %>% arrange(desc(total))
+            
+            fdata <- fdata %>% rename(`Category`=category, `# Check-In`=checkins)
 
-            plot_ly(data = fdata, x = category, y = checkins, type = "bar", color = period, 
+            plot_ly(data = fdata, x = Category, y = `# Check-In`, type = "bar", color = period, 
                     colors = c("#00CC20", "#D40000", "#FFDB0D", "#0485FF"), xlab="Checkins", ylab="Hour")  %>% 
-                layout(barmode='stack', margin = list(b=100))                
+                layout(barmode='stack', margin = list(b=150))                
         })
         
         output$weekdayActivityPlot <- renderPlotly({
@@ -99,8 +101,10 @@ shinyServer(
             df <- mutate(df, day=sapply(day, weekdayName)) %>%
                     mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
                      arrange(day, hour)
+            
+            df <- df %>% rename(Hour=hour)
 
-            plot_ly(df, x = hour, y = `CheckIn Count`, color = day)
+            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day)
         })
         
         output$weekdayActivityPlotB <- renderPlotly({
@@ -123,8 +127,10 @@ shinyServer(
                 mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
                 arrange(day, hour)
             
-            plot_ly(df, x = hour, y = `CheckIn Count`, color = day)
-        })        
+            df <- df %>% rename(Hour=hour)
+            
+            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day)
+        })
         
         output$dotMap <- leaflet::renderLeaflet({
             
@@ -188,7 +194,22 @@ shinyServer(
         
         observeEvent(input$citySelect, {
             hide("citySelect")
-        })         
+        })
+        
+        output$businesses <- DT::renderDataTable({
+            
+            CITY <- input$citySelect
+            
+            cityData <- bag$geo %>% filter(as.character(city) == CITY)
+            
+            fdata <- cityData %>% select(city, name, address, stars, categories)
+            
+            fdata <- unique(fdata) %>% 
+                rename(Name=name, City=city, Address=address, Stars=stars, Categories=categories) %>%
+                select(Name, Address, Stars, Categories)
+            
+            return(fdata)
+        })
         
     }
 )
