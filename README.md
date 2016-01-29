@@ -10,6 +10,30 @@ Built with [Shiny](http://shiny.rstudio.com/) and data from the [Yelp Dataset Ch
 
 Inspired by Shiny's [SuperZIP demo](http://shiny.rstudio.com/gallery/superzip-example.html)
 
+
+Data Pre-processing
+-------------------
+
+Download the Yelp data set from the [challenge's website] to a local directory, e.g *Downloads*, and run
+the python parser to generate files needed by the app:
+
+```
+python ~/Downloads/yelp_dataset_challenge_academic_dataset ~/apps/yelpsi/R/data
+```
+
+The script will generate all files needed by the application. These files need to be placed under the `yelpsi/R/data` directory.
+
+Running
+---------
+
+To run the application locally, you need [shiny](https://cran.r-project.org/web/packages/shiny/index.html) package installed on your system.
+From the R console, set your working directory to `R` folder of the app, and run the command:
+
+```
+setwd("~/apps/yelpsi/R")
+shiny::runApp()
+```
+
 Live Demo
 -----------
 

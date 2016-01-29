@@ -11,10 +11,13 @@ source("utils.R")
 # globalVariable <- as.character(head(bag$cities, 1)$city)
 
 topBusinessCategories <- function(pCity, n=10){
-    tmpdf = summarise(
-        group_by(filter(bag$checkin, as.character(city)==pCity), category), 
-        totalCheckin=sum(checkin_count)
-    )
+    tmpdf <- bag$checkin %>% filter(as.character(city)==pCity) %>%
+        group_by(category) %>% summarise(totalCheckin=sum(checkin_count))
+#         
+#         summarise(
+#         group_by(filter(bag$checkin, as.character(city)==pCity), category), 
+#         totalCheckin=sum(checkin_count)
+#     )
     tmpdf <- arrange(tmpdf, desc(totalCheckin))
     head(as.character(tmpdf$category), n)
 }
@@ -60,16 +63,20 @@ shinyServer(
             
             CITY <- input$citySelect
             N <- 10
-            tmpdf = summarise(
-                group_by(filter(bag$checkin, as.character(city)==CITY), category), 
-                totalCheckin=sum(checkin_count)
-            )
+            
+            tmpdf <- bag$checkin %>% filter(as.character(city)==CITY) %>% 
+                group_by(category) %>% summarise(totalCheckin=sum(checkin_count))
+#             tmpdf = summarise(
+#                 group_by(filter(bag$checkin, as.character(city)==CITY), category), 
+#                 
+#             )
             
             tmpdf <- arrange(tmpdf, desc(totalCheckin))
             categories <- head(as.character(tmpdf$category), N)
             
-            fdata <- summarise(group_by(filter(bag$checkin, as.character(city)==CITY, category %in% categories), category, hour), tt=sum(checkin_count))
-            
+            fdata <- bag$checkin %>% filter(as.character(city)==CITY, category %in% categories) %>%
+                group_by(category, hour) %>% summarise(tt=sum(checkin_count))
+
             fdata <- fdata %>% mutate(period=sapply(hour, dayTime)) %>%
                 group_by(category, period) %>% 
                 mutate(checkins=sum(tt)) %>%
@@ -93,10 +100,12 @@ shinyServer(
             CATEGORY <- input$categorySelect
             WEEKDAYS <- input$weekdayCheckGroup
             
-            df <- select(
-                filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY,
-                       day %in% WEEKDAYS), 
-                day, hour, checkin_count)
+            df <- bag$checkin %>% filter(as.character(city)==CITY, as.character(category)==CATEGORY,
+                                         day %in% WEEKDAYS) %>% select(day, hour, checkin_count)
+#             df <- select(
+#                 filter(bag$checkin, as.character(city)==CITY, as.character(category)==CATEGORY,
+#                        day %in% WEEKDAYS), 
+#                 day, hour, checkin_count)
             
             df <- mutate(df, day=sapply(day, weekdayName)) %>%
                     mutate(day=as.factor(day), `CheckIn Count`=checkin_count) %>%
@@ -104,7 +113,7 @@ shinyServer(
             
             df <- df %>% rename(Hour=hour)
 
-            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day)
+            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day, width = "100%", height = 400)
         })
         
         output$weekdayActivityPlotB <- renderPlotly({
@@ -129,7 +138,7 @@ shinyServer(
             
             df <- df %>% rename(Hour=hour)
             
-            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day)
+            plot_ly(df, x = Hour, y = `CheckIn Count`, color = day, width = "100%", height = 400)
         })
         
         output$dotMap <- leaflet::renderLeaflet({
@@ -149,7 +158,7 @@ shinyServer(
                     urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
                     attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
                 ) %>%
-                setView(lat = initialMark$latitude, lng = initialMark$longitude, zoom = 14)
+                setView(lat = initialMark$latitude, lng = initialMark$longitude, zoom = 15)
         })
         
         observe({
@@ -200,7 +209,7 @@ shinyServer(
             
             CITY <- input$citySelect
             
-            cityData <- bag$geo %>% filter(as.character(city) == CITY)
+            cityData <- bag$business %>% filter(as.character(city) == CITY)
             
             fdata <- cityData %>% select(city, name, address, stars, categories)
             
