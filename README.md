@@ -9,3 +9,8 @@ Once you've found a place of interest, you can observe the particular trends or 
 Built with [Shiny](http://shiny.rstudio.com/) and data from the [Yelp Dataset Challenge](https://www.yelp.com/dataset_challenge)
 
 Inspired by Shiny's [SuperZIP demo](http://shiny.rstudio.com/gallery/superzip-example.html)
+
+Live Demo
+-----------
+
+Live demo [here](https://thinkingthread.shinyapps.io/yelpsi), hosted by [Shinyapps](https://www.shinyapps.io/).
