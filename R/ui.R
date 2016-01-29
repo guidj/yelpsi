@@ -15,7 +15,7 @@ shinyUI(navbarPage("YelpSí",
                                 absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                                               draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
                                               width = 500, height = "auto",                                              
-                                              h2("Activity: Check-Ins"),
+                                              h2("Check-Ins @", textOutput("tickedCity")),
                                               plotlyOutput("checkinActivityPlot")
                                               
                                 ),
