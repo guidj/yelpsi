@@ -18,7 +18,7 @@ Download the Yelp data set from the [challenge's website] to a local directory, 
 the python parser to generate files needed by the app:
 
 ```
-python ~/Downloads/yelp_dataset_challenge_academic_dataset ~/apps/yelpsi/R/data
+python yelpsi/python/yelpsi/parser.py ~/Downloads/yelp_dataset_challenge_academic_dataset ~/apps/yelpsi/R/data
 ```
 
 The script will generate all files needed by the application. These files need to be placed under the `yelpsi/R/data` directory.
